@@ -92,8 +92,8 @@
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/Sapvit/roulette.git
-   cd roulette
+   git clone https://github.com/Sapvit/casino.git
+   cd casino
    ```
 
 2. Запустите встроенный PHP-сервер:
