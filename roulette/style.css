@@ -423,8 +423,17 @@ input::-webkit-inner-spin-button {
 
 #roulette-view {
     display: none;
+    grid-column: 2 / 4;
 }
 
 #roulette-view.show {
+    display: block;
+}
+
+#numbers-panel {
+    display: none;
+}
+
+#numbers-panel.show {
     display: block;
 }

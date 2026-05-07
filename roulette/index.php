@@ -120,32 +120,6 @@ function getNumberColor($num) {
                     </div>
                 <?php endforeach; ?>
             </div>
-
-            <div class="panel">
-                <h2>ЧИСЛА (0-36)</h2>
-                <div class="numbers-table-container">
-                    <table class="numbers-table">
-                        <thead>
-                            <tr>
-                                <th><a href="<?php echo sortLink('number', $sortCol, $sortOrder); ?>">№</a></th>
-                                <th><a href="<?php echo sortLink('sigma', $sortCol, $sortOrder); ?>">&Sigma;</a></th>
-                                <th><a href="<?php echo sortLink('lastSeen', $sortCol, $sortOrder); ?>" title="Интервал (бросков назад)">&Delta;</a></th>
-                                <th><a href="<?php echo sortLink('prob', $sortCol, $sortOrder); ?>">%</a></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($numberStats as $s): ?>
-                                <tr data-number="<?php echo $s['number']; ?>">
-                                    <td><span class="num-badge number-cell"><?php echo $s['number']; ?></span></td>
-                                    <td class="sigma-cell"><?php echo $s['sigma']; ?></td>
-                                    <td class="last-seen-cell"><?php echo $s['lastSeen']; ?></td>
-                                    <td class="val-prob number-prob-cell"><?php echo formatProb($s['prob']); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
         <!-- РУЛЕТКА -->
@@ -291,6 +265,33 @@ function getNumberColor($num) {
                 </div>
             </div>
         </div>
+
+        <!-- Таблица чисел в правой колонке -->
+        <div id="numbers-panel" class="panel show">
+            <h2>ЧИСЛА (0-36)</h2>
+            <div class="numbers-table-container">
+                <table class="numbers-table">
+                    <thead>
+                        <tr>
+                            <th><a href="<?php echo sortLink('number', $sortCol, $sortOrder); ?>">№</a></th>
+                            <th><a href="<?php echo sortLink('sigma', $sortCol, $sortOrder); ?>">&Sigma;</a></th>
+                            <th><a href="<?php echo sortLink('lastSeen', $sortCol, $sortOrder); ?>" title="Интервал (бросков назад)">&Delta;</a></th>
+                            <th><a href="<?php echo sortLink('prob', $sortCol, $sortOrder); ?>">%</a></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($numberStats as $s): ?>
+                            <tr data-number="<?php echo $s['number']; ?>">
+                                <td><span class="num-badge number-cell"><?php echo $s['number']; ?></span></td>
+                                <td class="sigma-cell"><?php echo $s['sigma']; ?></td>
+                                <td class="last-seen-cell"><?php echo $s['lastSeen']; ?></td>
+                                <td class="val-prob number-prob-cell"><?php echo formatProb($s['prob']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -338,16 +339,19 @@ function getNumberColor($num) {
         function switchView(view) {
             const tableView = document.getElementById('table-view');
             const rouletteView = document.getElementById('roulette-view');
+            const numbersPanel = document.getElementById('numbers-panel');
             const buttons = document.querySelectorAll('.view-toggle');
 
             if (view === 'table') {
                 tableView.classList.add('show');
                 rouletteView.classList.remove('show');
+                numbersPanel.classList.add('show');
                 buttons[0].classList.add('active');
                 buttons[1].classList.remove('active');
             } else {
                 tableView.classList.remove('show');
                 rouletteView.classList.add('show');
+                numbersPanel.classList.remove('show');
                 buttons[0].classList.remove('active');
                 buttons[1].classList.add('active');
             }
