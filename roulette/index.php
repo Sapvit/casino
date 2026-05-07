@@ -217,7 +217,7 @@ function getNumberColor($num) {
 
                     <!-- 2:1 выставки справа -->
                     <div class="roulette-2to1">
-                        <?php foreach (['1st Column', '2nd Column', '3rd Column'] as $columnName):
+                        <?php foreach (['3rd Column', '2nd Column', '1st Column'] as $columnName):
                             $columnStats = $probabilityMap[$columnName] ?? null;
                         ?>
                         <div class="bet-btn-2to1-wrapper" data-bet-name="<?php echo $columnName; ?>">
