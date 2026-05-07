@@ -138,7 +138,7 @@
 
         <div class="games-grid">
             <div class="game-card">
-                <img src="Roulette.jpg" alt="Рулетка">
+                <img src="assets/Roulette.jpg" alt="Рулетка">
                 <div class="game-card-overlay">
                     <span class="game-label">РУЛЕТКА</span>
                 </div>
@@ -146,7 +146,7 @@
             </div>
 
             <div class="game-card">
-                <img src="Poker.jpg" alt="Покер">
+                <img src="assets/Poker.jpg" alt="Покер">
                 <div class="game-card-overlay">
                     <span class="game-label">ПОКЕР</span>
                 </div>
