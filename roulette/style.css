@@ -285,27 +285,6 @@ input::-webkit-inner-spin-button {
 }
 
 .bet-btn-2to1-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
-.bet-btn-2to1 {
-    width: 70px;
-    padding: 15px 10px;
-    border: 2px solid #daa520;
-    border-radius: 6px;
-    background: #2d2d2d;
-    color: #daa520;
-    font-weight: bold;
-    cursor: default;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-}
-
-
-.bet-btn-2to1-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -324,11 +303,12 @@ input::-webkit-inner-spin-button {
     font-weight: bold;
     cursor: default;
     transition: all 0.2s;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    line-height: 1;
 }
 
 .bet-prob {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     color: #f39c12;
     font-family: monospace;
     font-weight: bold;
@@ -336,9 +316,12 @@ input::-webkit-inner-spin-button {
 /* Нижние выставки */
 .roulette-bottom {
     background: rgba(20, 80, 40, 0.3);
-    padding: 15px;
+    padding: 12px;
     border-radius: 12px;
     border: 2px solid #5a7a5a;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* Дюжины */
@@ -346,19 +329,18 @@ input::-webkit-inner-spin-button {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    gap: 8px;
 }
 
 .bet-btn-bottom-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
 }
 
 .bet-btn-bottom {
     width: 100%;
-    padding: 12px;
+    padding: 8px 10px;
     border: 2px solid #daa520;
     border-radius: 6px;
     background: #2d2d2d;
@@ -366,7 +348,8 @@ input::-webkit-inner-spin-button {
     font-weight: bold;
     cursor: default;
     transition: all 0.2s;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1;
 }
 
 .bet-btn-bottom.red-field {
@@ -379,6 +362,27 @@ input::-webkit-inner-spin-button {
     background: rgba(0, 0, 0, 0.3);
     color: #ccc;
     border-color: #666;
+}
+
+.bet-btn-dozen-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.bet-btn-dozen {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid #daa520;
+    border-radius: 6px;
+    background: #2d2d2d;
+    color: #daa520;
+    font-weight: bold;
+    cursor: default;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+    line-height: 1;
 }
 
 #table-view {
