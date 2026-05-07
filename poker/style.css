@@ -1,0 +1,152 @@
+:root {
+    --bg-color: #1a1a1a;
+    --card-width: 75px;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --yellow: #f1c40f;
+    --panel-bg: #2c3e50;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: white;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 20px;
+}
+
+.container { max-width: 1250px; margin: 0 auto; }
+
+.top-bar {
+    background: var(--panel-bg);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 25px;
+    width: 100%;
+}
+
+.main-screen {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.hand-block {
+    position: relative;
+    background: var(--panel-bg);
+    padding: 45px 20px 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.hand-label {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #bdc3c7;
+    text-transform: uppercase;
+}
+
+/* Контейнер для карт и статов в ряд */
+.hand-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 25px;
+}
+
+.cards-slots { display: flex; gap: 10px; flex-shrink: 0; }
+
+.slot {
+    width: var(--card-width);
+    height: calc(var(--card-width) * 1.4);
+    border: 1px solid #455a64;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slot.small { width: 55px; height: 77px; }
+.slot img { width: 100%; height: 100%; object-fit: contain; cursor: pointer; }
+
+/* Вероятности */
+.probs-list {
+    flex-grow: 1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
+    font-family: 'Consolas', monospace;
+}
+
+/* Сетка для Hero и развернутых списков */
+.hero-grid, .expanded-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px 20px;
+}
+
+.expanded-list {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Свернутый список Top-2 справа от карт */
+.probs-list.collapsed {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.prob-item {
+    display: flex;
+    justify-content: space-between;
+    color: #95a5a6;
+}
+
+.opponents-sidebar {
+    height: 88vh;
+    overflow-y: auto;
+    padding-right: 0px;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding-top: 10px;
+    text-align: left;
+}
+
+.deck-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    background: #243342;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.suit-block { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.deck-card { width: 34px; cursor: pointer; transition: 0.2s; }
+.deck-card.selected { opacity: 0.1; pointer-events: none; }
+
+.prob-item.better-than-hero { color: var(--red) !important; font-weight: bold; }
+.prob-item.best-on-table { color: var(--green) !important; font-weight: bold; }
+.hero-recommendation { font-weight: bold; margin-left: 8px; }
+.text-raise { color: var(--green); }
+.text-call { color: var(--yellow); }
+.text-fold { color: var(--red); }

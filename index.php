@@ -1,113 +1,156 @@
-<?php
-session_start();
-require_once 'functions.php';
-
-if (!isset($_SESSION['history'])) $_SESSION['history'] = [];
-
-// Обработка ввода
-if (isset($_POST['number']) && $_POST['number'] !== '') {
-    $num = (int)$_POST['number'];
-    if ($num >= 0 && $num <= 36) array_unshift($_SESSION['history'], $num);
-}
-if (isset($_POST['clear'])) $_SESSION['history'] = [];
-
-// Параметры сортировки
-$sortCol = $_GET['sort'] ?? 'number';
-$sortOrder = $_GET['order'] ?? 'asc';
-
-$probabilities = calculateProbabilities($_SESSION['history'], $groups);
-$numberStats = getIndividualNumbersStats($_SESSION['history']);
-
-// Сортировка таблицы
-usort($numberStats, function($a, $b) use ($sortCol, $sortOrder) {
-    if ($a[$sortCol] == $b[$sortCol]) return 0;
-    $res = ($a[$sortCol] < $b[$sortCol]) ? -1 : 1;
-    return ($sortOrder === 'asc') ? $res : -$res;
-});
-
-function sortLink($col, $currentCol, $currentOrder) {
-    $order = ($currentCol === $col && $currentOrder === 'asc') ? 'desc' : 'asc';
-    return "?sort=$col&order=$order";
-}
-?>
-
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор игры</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .game-card {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .game-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover .game-card-overlay {
+            opacity: 1;
+        }
+
+        .game-label {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 2px;
+        }
+
+        .game-card a {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .game-label {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="main-layout">
-        <div class="panel input-panel">
-            <div class="input-static">
-                <h2>ВВОД</h2>
-                <form method="POST">
-                    <input type="number" name="number" min="0" max="36" autofocus required>
-                    <button type="submit" class="btn btn-add">ДОБАВИТЬ</button>
-                </form>
-                <form method="POST">
-                    <button name="clear" class="btn btn-clear">СБРОС</button>
-                </form>
-            </div>
-
-            <div class="history-list">
-                <h3>ИСТОРИЯ</h3>
-                <?php foreach($_SESSION['history'] as $h): ?>
-                    <div class="history-item"><?php echo $h; ?></div>
-                <?php endforeach; ?>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Выбор игры</h1>
+            <p>Нажмите на картинку для выбора игры</p>
         </div>
 
-        <div class="category-grid">
-            <?php 
-            $display = [
-                'Цвета' => ['Red', 'Black', 'Zero'],
-                'Четность' => ['Even', 'Odd'],
-                'Половины' => ['1-18', '19-36'],
-                'Дюжины' => ['1st Dozen', '2nd Dozen', '3rd Dozen']
-            ];
-            foreach ($display as $title => $keys): ?>
-                <div class="panel stat-group">
-                    <h2><?php echo $title; ?></h2>
-                    <?php foreach ($probabilities as $p): if (in_array($p['name'], $keys)): ?>
-                        <div class="stat-row">
-                            <span><strong><?php echo $p['name']; ?></strong> (S:<?php echo $p['streak']; ?>)</span>
-                            <div style="text-align: right;">
-                                <div style="font-size: 0.75rem; color: #aaa;">След: <?php echo formatProb($p['prob']); ?></div>
-                                <div class="val-prob <?php echo getAnomalyClass($p['break']); ?>">
-                                    Риск: <?php echo formatExpectation($p['break']); ?>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endif; endforeach; ?>
+        <div class="games-grid">
+            <div class="game-card">
+                <img src="Roulette.jpg" alt="Рулетка">
+                <div class="game-card-overlay">
+                    <span class="game-label">РУЛЕТКА</span>
                 </div>
-            <?php endforeach; ?>
-        </div>
+                <a href="roulette/index.php" title="Играть в рулетку"></a>
+            </div>
 
-        <div class="panel">
-            <h2>ЧИСЛА (0-36)</h2>
-            <div class="numbers-table-container">
-                <table class="numbers-table">
-                    <thead>
-                        <tr>
-                            <th><a href="<?php echo sortLink('number', $sortCol, $sortOrder); ?>">№</a></th>
-                            <th><a href="<?php echo sortLink('sigma', $sortCol, $sortOrder); ?>">&Sigma;</a></th>
-                            <th><a href="<?php echo sortLink('lastSeen', $sortCol, $sortOrder); ?>" title="Интервал (бросков назад)">&Delta;</a></th>
-                            <th><a href="<?php echo sortLink('prob', $sortCol, $sortOrder); ?>">%</a></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($numberStats as $s): ?>
-                            <tr>
-                                <td><span class="num-badge"><?php echo $s['number']; ?></span></td>
-                                <td><?php echo $s['sigma']; ?></td>
-                                <td><?php echo $s['lastSeen']; ?></td>
-                                <td class="val-prob"><?php echo formatProb($s['prob']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="game-card">
+                <img src="Poker.jpg" alt="Покер">
+                <div class="game-card-overlay">
+                    <span class="game-label">ПОКЕР</span>
+                </div>
+                <a href="poker/index.php" title="Играть в покер"></a>
             </div>
         </div>
     </div>
