@@ -158,62 +158,168 @@ input::-webkit-inner-spin-button {
 
 /* Рулетка */
 .roulette-table {
-    background: #1a5f3e;
-    border: 3px solid #8b7355;
+    background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
+    border: 8px solid #8b7355;
     border-radius: 20px;
     padding: 20px;
     margin-top: 20px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.roulette-grid {
-    display: grid;
-    grid-template-columns: 60px repeat(12, 1fr);
-    gap: 4px;
-    margin-bottom: 15px;
+/* Главный стол */
+.roulette-main {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    background: rgba(20, 80, 40, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #5a7a5a;
 }
 
-.zero-cell {
-    grid-column: 1;
-    grid-row: 1 / 4;
+.roulette-zero {
+    flex-shrink: 0;
 }
 
-.number-btn {
-    padding: 20px;
-    border: 2px solid #333;
-    border-radius: 6px;
+.number-btn-large {
+    width: 60px;
+    height: 180px;
+    border: 2px solid #daa520;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     transition: all 0.2s;
     color: white;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.number-btn:hover {
+.number-btn-large:hover {
     transform: scale(1.05);
-    border-color: #fff;
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(218, 165, 32, 0.6);
 }
 
-.number-btn.red {
-    background: #c41e3a;
-}
-
-.number-btn.black {
-    background: #1a1a1a;
-}
-
-.number-btn.green {
+.number-btn-large.green {
     background: #27ae60;
 }
 
-.bets-row {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+/* Таблица чисел */
+.roulette-numbers {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
-    margin-top: 10px;
 }
 
-.bet-btn {
+.number-row {
+    display: flex;
+    gap: 4px;
+}
+
+.number-btn-cell {
+    flex: 1;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 2px solid #555;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.cell-number {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.cell-prob {
+    font-size: 0.7rem;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+.number-btn-cell:hover {
+    transform: scale(1.08);
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.number-btn-cell.red {
+    background: linear-gradient(135deg, #c41e3a 0%, #a01829 100%);
+}
+
+.number-btn-cell.black {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.number-btn-cell.green {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+}
+
+/* 2:1 выставки справа */
+.roulette-2to1 {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.bet-btn-2to1 {
+    width: 70px;
+    padding: 15px 10px;
+    border: 2px solid #daa520;
+    border-radius: 6px;
+    background: #2d2d2d;
+    color: #daa520;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.bet-btn-2to1:hover {
+    background: #3d3d3d;
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
+}
+
+/* Нижние выставки */
+.roulette-bottom {
+    background: rgba(20, 80, 40, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #5a7a5a;
+}
+
+/* Дюжины */
+.dozen-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.bet-btn-dozen {
     padding: 15px;
     border: 2px solid #daa520;
     border-radius: 6px;
@@ -222,11 +328,62 @@ input::-webkit-inner-spin-button {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 0.95rem;
 }
 
-.bet-btn:hover {
+.bet-btn-dozen:hover {
     background: #3d3d3d;
     border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
+}
+
+/* Нижняя строка выставок */
+.bets-bottom-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.bet-btn-bottom {
+    padding: 12px;
+    border: 2px solid #daa520;
+    border-radius: 6px;
+    background: #2d2d2d;
+    color: #daa520;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.bet-btn-bottom:hover {
+    background: #3d3d3d;
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
+}
+
+.bet-btn-bottom.red-field {
+    background: rgba(196, 30, 58, 0.2);
+    color: #c41e3a;
+    border-color: #c41e3a;
+}
+
+.bet-btn-bottom.red-field:hover {
+    background: rgba(196, 30, 58, 0.4);
+    border-color: #ff4d4d;
+    box-shadow: 0 0 10px rgba(196, 30, 58, 0.4);
+}
+
+.bet-btn-bottom.black-field {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ccc;
+    border-color: #666;
+}
+
+.bet-btn-bottom.black-field:hover {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
 
 #table-view {

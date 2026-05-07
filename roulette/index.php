@@ -127,45 +127,98 @@ function getNumberColor($num) {
         </div>
 
         <!-- РУЛЕТКА -->
-        <div id="roulette-view" class="panel">
+        <div id="roulette-view">
             <div class="roulette-table">
-                <div class="roulette-grid">
+                <!-- Главный стол чисел -->
+                <div class="roulette-main">
                     <!-- Зеро -->
-                    <button class="number-btn green zero-cell" onclick="addNumber(0)">0</button>
+                    <div class="roulette-zero">
+                        <button class="number-btn-large green" onclick="addNumber(0)">
+                            <div class="cell-content">
+                                <div class="cell-number">0</div>
+                                <?php 
+                                $zeroStats = array_values(array_filter($numberStats, fn($s) => $s['number'] == 0))[0] ?? null;
+                                $zeroProb = $zeroStats ? number_format($zeroStats['prob'], 2, '.', '') : '0';
+                                ?>
+                                <div class="cell-prob"><?php echo $zeroProb; ?>%</div>
+                            </div>
+                        </button>
+                    </div>
 
-                    <!-- Строка 1: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 -->
-                    <?php for ($i = 1; $i <= 34; $i += 3) {
-                        $color = getNumberColor($i);
-                        echo "<button class='number-btn $color' onclick='addNumber($i)'>$i</button>";
-                    } ?>
+                    <!-- Таблица чисел -->
+                    <div class="roulette-numbers">
+                        <!-- Строка 1: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 -->
+                        <div class="number-row">
+                            <?php for ($i = 3; $i <= 36; $i += 3) {
+                                $color = getNumberColor($i);
+                                $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
+                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                    <div class='cell-content'>
+                                        <div class='cell-number'>$i</div>
+                                        <div class='cell-prob'>{$prob}%</div>
+                                    </div>
+                                </button>";
+                            } ?>
+                        </div>
 
-                    <!-- Строка 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 -->
-                    <?php for ($i = 2; $i <= 35; $i += 3) {
-                        $color = getNumberColor($i);
-                        echo "<button class='number-btn $color' onclick='addNumber($i)'>$i</button>";
-                    } ?>
+                        <!-- Строка 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 -->
+                        <div class="number-row">
+                            <?php for ($i = 2; $i <= 35; $i += 3) {
+                                $color = getNumberColor($i);
+                                $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
+                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                    <div class='cell-content'>
+                                        <div class='cell-number'>$i</div>
+                                        <div class='cell-prob'>{$prob}%</div>
+                                    </div>
+                                </button>";
+                            } ?>
+                        </div>
 
-                    <!-- Строка 3: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 -->
-                    <?php for ($i = 3; $i <= 36; $i += 3) {
-                        $color = getNumberColor($i);
-                        echo "<button class='number-btn $color' onclick='addNumber($i)'>$i</button>";
-                    } ?>
+                        <!-- Строка 3: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 -->
+                        <div class="number-row">
+                            <?php for ($i = 1; $i <= 34; $i += 3) {
+                                $color = getNumberColor($i);
+                                $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
+                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                    <div class='cell-content'>
+                                        <div class='cell-number'>$i</div>
+                                        <div class='cell-prob'>{$prob}%</div>
+                                    </div>
+                                </button>";
+                            } ?>
+                        </div>
+                    </div>
+
+                    <!-- 2:1 выставки справа -->
+                    <div class="roulette-2to1">
+                        <button class="bet-btn-2to1" onclick="toggleBet(this, '1col')">2 TO 1</button>
+                        <button class="bet-btn-2to1" onclick="toggleBet(this, '2col')">2 TO 1</button>
+                        <button class="bet-btn-2to1" onclick="toggleBet(this, '3col')">2 TO 1</button>
+                    </div>
                 </div>
 
-                <!-- Выставки (Betting Options) -->
-                <div class="bets-row">
-                    <button class="bet-btn" onclick="toggleBet(this, '1-18')">1-18</button>
-                    <button class="bet-btn" onclick="toggleBet(this, 'EVEN')">EVEN</button>
-                    <button class="bet-btn" onclick="toggleBet(this, 'RED')" style="color: #c41e3a;">🔴 RED</button>
-                    <button class="bet-btn" onclick="toggleBet(this, 'BLACK')">⚫ BLACK</button>
-                    <button class="bet-btn" onclick="toggleBet(this, 'ODD')">ODD</button>
-                    <button class="bet-btn" onclick="toggleBet(this, '19-36')">19-36</button>
-                </div>
+                <!-- Нижние выставки -->
+                <div class="roulette-bottom">
+                    <!-- Дюжины -->
+                    <div class="dozen-row">
+                        <button class="bet-btn-dozen" onclick="toggleBet(this, '1st')">1ST 12</button>
+                        <button class="bet-btn-dozen" onclick="toggleBet(this, '2nd')">2ND 12</button>
+                        <button class="bet-btn-dozen" onclick="toggleBet(this, '3rd')">3RD 12</button>
+                    </div>
 
-                <div class="bets-row">
-                    <button class="bet-btn" onclick="toggleBet(this, '1st')">1st 12</button>
-                    <button class="bet-btn" onclick="toggleBet(this, '2nd')">2nd 12</button>
-                    <button class="bet-btn" onclick="toggleBet(this, '3rd')">3rd 12</button>
+                    <!-- Колонки выставок -->
+                    <div class="bets-bottom-row">
+                        <button class="bet-btn-bottom" onclick="toggleBet(this, '1-18')">1 TO 18</button>
+                        <button class="bet-btn-bottom" onclick="toggleBet(this, 'EVEN')">EVEN</button>
+                        <button class="bet-btn-bottom red-field" onclick="toggleBet(this, 'RED')">🔴 RED</button>
+                        <button class="bet-btn-bottom black-field" onclick="toggleBet(this, 'BLACK')">⚫ BLACK</button>
+                        <button class="bet-btn-bottom" onclick="toggleBet(this, 'ODD')">ODD</button>
+                        <button class="bet-btn-bottom" onclick="toggleBet(this, '19-36')">19 TO 36</button>
+                    </div>
                 </div>
             </div>
         </div>
