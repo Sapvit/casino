@@ -284,6 +284,13 @@ input::-webkit-inner-spin-button {
     flex-shrink: 0;
 }
 
+.bet-btn-2to1-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
 .bet-btn-2to1 {
     width: 70px;
     padding: 15px 10px;
@@ -292,15 +299,16 @@ input::-webkit-inner-spin-button {
     background: #2d2d2d;
     color: #daa520;
     font-weight: bold;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s;
     font-size: 0.9rem;
 }
 
-.bet-btn-2to1:hover {
-    background: #3d3d3d;
-    border-color: #ffd700;
-    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
+.bet-prob {
+    font-size: 0.75rem;
+    color: #f39c12;
+    font-family: monospace;
+    font-weight: bold;
 }
 
 /* Нижние выставки */
@@ -319,22 +327,24 @@ input::-webkit-inner-spin-button {
     margin-bottom: 12px;
 }
 
+.bet-btn-dozen-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
 .bet-btn-dozen {
+    width: 100%;
     padding: 15px;
     border: 2px solid #daa520;
     border-radius: 6px;
     background: #2d2d2d;
     color: #daa520;
     font-weight: bold;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s;
     font-size: 0.95rem;
-}
-
-.bet-btn-dozen:hover {
-    background: #3d3d3d;
-    border-color: #ffd700;
-    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
 }
 
 /* Нижняя строка выставок */
@@ -344,22 +354,24 @@ input::-webkit-inner-spin-button {
     gap: 8px;
 }
 
+.bet-btn-bottom-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
 .bet-btn-bottom {
+    width: 100%;
     padding: 12px;
     border: 2px solid #daa520;
     border-radius: 6px;
     background: #2d2d2d;
     color: #daa520;
     font-weight: bold;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s;
     font-size: 0.85rem;
-}
-
-.bet-btn-bottom:hover {
-    background: #3d3d3d;
-    border-color: #ffd700;
-    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
 }
 
 .bet-btn-bottom.red-field {
@@ -368,22 +380,10 @@ input::-webkit-inner-spin-button {
     border-color: #c41e3a;
 }
 
-.bet-btn-bottom.red-field:hover {
-    background: rgba(196, 30, 58, 0.4);
-    border-color: #ff4d4d;
-    box-shadow: 0 0 10px rgba(196, 30, 58, 0.4);
-}
-
 .bet-btn-bottom.black-field {
     background: rgba(0, 0, 0, 0.3);
     color: #ccc;
     border-color: #666;
-}
-
-.bet-btn-bottom.black-field:hover {
-    background: rgba(0, 0, 0, 0.5);
-    border-color: #fff;
-    box-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
 
 #table-view {

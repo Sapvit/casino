@@ -138,9 +138,9 @@ function getNumberColor($num) {
                                 <div class="cell-number">0</div>
                                 <?php 
                                 $zeroStats = array_values(array_filter($numberStats, fn($s) => $s['number'] == 0))[0] ?? null;
-                                $zeroProb = $zeroStats ? number_format($zeroStats['prob'], 2, '.', '') : '0';
+                                $zeroProb = $zeroStats ? formatProb($zeroStats['prob']) : '0%';
                                 ?>
-                                <div class="cell-prob"><?php echo $zeroProb; ?>%</div>
+                                <div class="cell-prob"><?php echo $zeroProb; ?></div>
                             </div>
                         </button>
                     </div>
@@ -152,11 +152,11 @@ function getNumberColor($num) {
                             <?php for ($i = 3; $i <= 36; $i += 3) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
-                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                $prob = $stats ? formatProb($stats['prob']) : '0%';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
                                         <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>{$prob}%</div>
+                                        <div class='cell-prob'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -167,11 +167,11 @@ function getNumberColor($num) {
                             <?php for ($i = 2; $i <= 35; $i += 3) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
-                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                $prob = $stats ? formatProb($stats['prob']) : '0%';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
                                         <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>{$prob}%</div>
+                                        <div class='cell-prob'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -182,11 +182,11 @@ function getNumberColor($num) {
                             <?php for ($i = 1; $i <= 34; $i += 3) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
-                                $prob = $stats ? number_format($stats['prob'], 2, '.', '') : '0';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i' data-prob='$prob'>
+                                $prob = $stats ? formatProb($stats['prob']) : '0%';
+                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
                                         <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>{$prob}%</div>
+                                        <div class='cell-prob'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -195,9 +195,22 @@ function getNumberColor($num) {
 
                     <!-- 2:1 выставки справа -->
                     <div class="roulette-2to1">
-                        <button class="bet-btn-2to1" onclick="toggleBet(this, '1col')">2 TO 1</button>
-                        <button class="bet-btn-2to1" onclick="toggleBet(this, '2col')">2 TO 1</button>
-                        <button class="bet-btn-2to1" onclick="toggleBet(this, '3col')">2 TO 1</button>
+                        <?php 
+                        // 2:1 Выставки для столбцов
+                        $col1Numbers = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34];
+                        $col2Numbers = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35];
+                        $col3Numbers = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
+                        
+                        // Для каждого столбца считаем среднюю вероятность (как для группы)
+                        foreach(['col1' => 12, 'col2' => 12, 'col3' => 12] as $col => $count):
+                            $baseProb = ($count / 37) * 100;
+                            $formattedProb = formatProb($baseProb);
+                        ?>
+                        <div class="bet-btn-2to1-wrapper">
+                            <button class="bet-btn-2to1">2 TO 1</button>
+                            <div class="bet-prob"><?php echo $formattedProb; ?></div>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 
@@ -205,19 +218,61 @@ function getNumberColor($num) {
                 <div class="roulette-bottom">
                     <!-- Дюжины -->
                     <div class="dozen-row">
-                        <button class="bet-btn-dozen" onclick="toggleBet(this, '1st')">1ST 12</button>
-                        <button class="bet-btn-dozen" onclick="toggleBet(this, '2nd')">2ND 12</button>
-                        <button class="bet-btn-dozen" onclick="toggleBet(this, '3rd')">3RD 12</button>
+                        <?php 
+                        $dozenNames = [
+                            '1st Dozen' => '1ST 12',
+                            '2nd Dozen' => '2ND 12',
+                            '3rd Dozen' => '3RD 12'
+                        ];
+                        foreach($dozenNames as $dozenKey => $dozenDisplay):
+                            $dozenProb = null;
+                            foreach($probabilities as $p):
+                                if($p['name'] === $dozenKey) {
+                                    $dozenProb = formatProb($p['prob']);
+                                    break;
+                                }
+                            endforeach;
+                        ?>
+                        <div class="bet-btn-dozen-wrapper">
+                            <button class="bet-btn-dozen"><?php echo $dozenDisplay; ?></button>
+                            <div class="bet-prob"><?php echo $dozenProb ?: '-'; ?></div>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
 
                     <!-- Колонки выставок -->
                     <div class="bets-bottom-row">
-                        <button class="bet-btn-bottom" onclick="toggleBet(this, '1-18')">1 TO 18</button>
-                        <button class="bet-btn-bottom" onclick="toggleBet(this, 'EVEN')">EVEN</button>
-                        <button class="bet-btn-bottom red-field" onclick="toggleBet(this, 'RED')">🔴 RED</button>
-                        <button class="bet-btn-bottom black-field" onclick="toggleBet(this, 'BLACK')">⚫ BLACK</button>
-                        <button class="bet-btn-bottom" onclick="toggleBet(this, 'ODD')">ODD</button>
-                        <button class="bet-btn-bottom" onclick="toggleBet(this, '19-36')">19 TO 36</button>
+                        <?php 
+                        $betNames = [
+                            '1-18' => '1 TO 18',
+                            'Even' => 'EVEN',
+                            'Red' => '🔴 RED',
+                            'Black' => '⚫ BLACK',
+                            'Odd' => 'ODD',
+                            '19-36' => '19 TO 36'
+                        ];
+                        
+                        foreach($betNames as $key => $display):
+                            $betProb = null;
+                            foreach($probabilities as $p):
+                                if(($key === '1-18' && $p['name'] === '1-18') ||
+                                   ($key === 'Even' && $p['name'] === 'Even') ||
+                                   ($key === 'Red' && $p['name'] === 'Red') ||
+                                   ($key === 'Black' && $p['name'] === 'Black') ||
+                                   ($key === 'Odd' && $p['name'] === 'Odd') ||
+                                   ($key === '19-36' && $p['name'] === '19-36')) {
+                                    $betProb = formatProb($p['prob']);
+                                    break;
+                                }
+                            endforeach;
+                        ?>
+                        <div class="bet-btn-bottom-wrapper">
+                            <button class="bet-btn-bottom <?php echo $key === 'Red' ? 'red-field' : ($key === 'Black' ? 'black-field' : ''); ?>">
+                                <?php echo $display; ?>
+                            </button>
+                            <div class="bet-prob"><?php echo $betProb ?: '-'; ?></div>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -267,10 +322,6 @@ function getNumberColor($num) {
             const savedView = localStorage.getItem('rouletteView') || 'table';
             switchView(savedView);
         });
-
-        function toggleBet(btn, bet) {
-            btn.style.opacity = btn.style.opacity === '0.5' ? '1' : '0.5';
-        }
     </script>
 </body>
 </html>
