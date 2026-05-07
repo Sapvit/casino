@@ -175,6 +175,7 @@ input::-webkit-inner-spin-button {
     padding: 15px;
     border-radius: 12px;
     border: 2px solid #5a7a5a;
+    align-items: stretch;
 }
 
 .roulette-zero {
@@ -183,7 +184,6 @@ input::-webkit-inner-spin-button {
 
 .number-btn-large {
     width: 60px;
-    height: 180px;
     border: 2px solid #daa520;
     border-radius: 8px;
     font-weight: bold;
@@ -195,6 +195,7 @@ input::-webkit-inner-spin-button {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 200px;
 }
 
 .number-btn-large:hover {
@@ -211,10 +212,11 @@ input::-webkit-inner-spin-button {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
 .number-row {
+        flex: 1;
     display: flex;
     gap: 4px;
 }
@@ -278,7 +280,7 @@ input::-webkit-inner-spin-button {
 .roulette-2to1 {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
@@ -302,13 +304,35 @@ input::-webkit-inner-spin-button {
     font-size: 0.9rem;
 }
 
+
+.bet-btn-2to1-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.bet-btn-2to1 {
+    width: 70px;
+    padding: 12px 8px;
+    border: 2px solid #daa520;
+    border-radius: 6px;
+    background: #2d2d2d;
+    color: #daa520;
+    font-weight: bold;
+    cursor: default;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
 .bet-prob {
     font-size: 0.75rem;
     color: #f39c12;
     font-family: monospace;
     font-weight: bold;
 }
-
 /* Нижние выставки */
 .roulette-bottom {
     background: rgba(20, 80, 40, 0.3);
@@ -322,33 +346,6 @@ input::-webkit-inner-spin-button {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin-bottom: 12px;
-}
-
-.bet-btn-dozen-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
-.bet-btn-dozen {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid #daa520;
-    border-radius: 6px;
-    background: #2d2d2d;
-    color: #daa520;
-    font-weight: bold;
-    cursor: default;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-}
-
-/* Нижняя строка выставок */
-.bets-bottom-row {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
     gap: 8px;
 }
 
