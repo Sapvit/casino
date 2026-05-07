@@ -198,7 +198,6 @@ input::-webkit-inner-spin-button {
 }
 
 .number-btn-large:hover {
-    transform: scale(1.05);
     border-color: #ffd700;
     box-shadow: 0 0 15px rgba(218, 165, 32, 0.6);
 }
@@ -248,18 +247,17 @@ input::-webkit-inner-spin-button {
 }
 
 .cell-number {
-    font-size: 1.3rem;
+    font-size: 0.95rem;
     font-weight: bold;
 }
 
 .cell-prob {
-    font-size: 0.7rem;
+    font-size: 0.55rem;
     opacity: 0.9;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 .number-btn-cell:hover {
-    transform: scale(1.08);
     border-color: #fff;
     box-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
