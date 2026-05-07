@@ -4,19 +4,39 @@ require_once 'functions.php';
 
 if (!isset($_SESSION['history'])) $_SESSION['history'] = [];
 
-// Обработка ввода
-if (isset($_POST['number']) && $_POST['number'] !== '') {
-    $num = (int)$_POST['number'];
-    if ($num >= 0 && $num <= 36) array_unshift($_SESSION['history'], $num);
-}
-if (isset($_POST['clear'])) $_SESSION['history'] = [];
-
 // Параметры сортировки
 $sortCol = $_GET['sort'] ?? 'number';
 $sortOrder = $_GET['order'] ?? 'asc';
 
+// AJAX-обновление без полной перезагрузки страницы
+if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
+    if (isset($_POST['number']) && $_POST['number'] !== '') {
+        $num = (int)$_POST['number'];
+        if ($num >= 0 && $num <= 36) array_unshift($_SESSION['history'], $num);
+    }
+    if (isset($_POST['clear'])) {
+        $_SESSION['history'] = [];
+    }
+
+    $probabilities = calculateProbabilities($_SESSION['history'], $groups);
+    $numberStats = getIndividualNumbersStats($_SESSION['history']);
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'history' => $_SESSION['history'],
+        'probabilities' => $probabilities,
+        'numberStats' => $numberStats
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $probabilities = calculateProbabilities($_SESSION['history'], $groups);
 $numberStats = getIndividualNumbersStats($_SESSION['history']);
+
+$probabilityMap = [];
+foreach ($probabilities as $item) {
+    $probabilityMap[$item['name']] = $item;
+}
 
 // Сортировка таблицы
 usort($numberStats, function($a, $b) use ($sortCol, $sortOrder) {
@@ -49,12 +69,12 @@ function getNumberColor($num) {
         <div class="panel input-panel">
             <div class="input-static">
                 <h2>ВВОД</h2>
-                <form method="POST">
+                <form id="number-form" method="POST" onsubmit="return submitNumber(event)">
                     <input type="number" name="number" min="0" max="36" autofocus required>
                     <button type="submit" class="btn btn-add">ДОБАВИТЬ</button>
                 </form>
-                <form method="POST">
-                    <button name="clear" class="btn btn-clear">СБРОС</button>
+                <form id="clear-form" method="POST" onsubmit="return clearHistory(event)">
+                    <button type="submit" class="btn btn-clear">СБРОС</button>
                 </form>
 
                 <div class="view-toggle-container">
@@ -65,9 +85,11 @@ function getNumberColor($num) {
 
             <div class="history-list">
                 <h3>ИСТОРИЯ</h3>
+                <div id="history-list">
                 <?php foreach($_SESSION['history'] as $h): ?>
                     <div class="history-item"><?php echo $h; ?></div>
                 <?php endforeach; ?>
+                </div>
             </div>
         </div>
 
@@ -85,11 +107,11 @@ function getNumberColor($num) {
                     <div class="panel stat-group">
                         <h2><?php echo $title; ?></h2>
                         <?php foreach ($probabilities as $p): if (in_array($p['name'], $keys)): ?>
-                            <div class="stat-row">
-                                <span><strong><?php echo $p['name']; ?></strong> (S:<?php echo $p['streak']; ?>)</span>
+                            <div class="stat-row" data-stat-name="<?php echo $p['name']; ?>">
+                                <span><strong><?php echo $p['name']; ?></strong> (<span class="stat-streak">S:<?php echo $p['streak']; ?></span>)</span>
                                 <div style="text-align: right;">
-                                    <div style="font-size: 0.75rem; color: #aaa;">След: <?php echo formatProb($p['prob']); ?></div>
-                                    <div class="val-prob <?php echo getAnomalyClass($p['break']); ?>">
+                                    <div class="stat-prob-next" style="font-size: 0.75rem; color: #aaa;">След: <?php echo formatProb($p['prob']); ?></div>
+                                    <div class="val-prob <?php echo getAnomalyClass($p['break']); ?> stat-prob-break">
                                         Риск: <?php echo formatExpectation($p['break']); ?>
                                     </div>
                                 </div>
@@ -113,11 +135,11 @@ function getNumberColor($num) {
                         </thead>
                         <tbody>
                             <?php foreach ($numberStats as $s): ?>
-                                <tr>
-                                    <td><span class="num-badge"><?php echo $s['number']; ?></span></td>
-                                    <td><?php echo $s['sigma']; ?></td>
-                                    <td><?php echo $s['lastSeen']; ?></td>
-                                    <td class="val-prob"><?php echo formatProb($s['prob']); ?></td>
+                                <tr data-number="<?php echo $s['number']; ?>">
+                                    <td><span class="num-badge number-cell"><?php echo $s['number']; ?></span></td>
+                                    <td class="sigma-cell"><?php echo $s['sigma']; ?></td>
+                                    <td class="last-seen-cell"><?php echo $s['lastSeen']; ?></td>
+                                    <td class="val-prob number-prob-cell"><?php echo formatProb($s['prob']); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -133,14 +155,14 @@ function getNumberColor($num) {
                 <div class="roulette-main">
                     <!-- Зеро -->
                     <div class="roulette-zero">
-                        <button class="number-btn-large green" onclick="addNumber(0)">
+                        <button id="roulette-number-0" class="number-btn-large green" onclick="addNumber(0)">
                             <div class="cell-content">
-                                <div class="cell-number">0</div>
+                                <div class="cell-number number-cell">0</div>
                                 <?php 
                                 $zeroStats = array_values(array_filter($numberStats, fn($s) => $s['number'] == 0))[0] ?? null;
                                 $zeroProb = $zeroStats ? formatProb($zeroStats['prob']) : '0%';
                                 ?>
-                                <div class="cell-prob"><?php echo $zeroProb; ?></div>
+                                <div class="cell-prob number-prob-cell"><?php echo $zeroProb; ?></div>
                             </div>
                         </button>
                     </div>
@@ -153,10 +175,10 @@ function getNumberColor($num) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
                                 $prob = $stats ? formatProb($stats['prob']) : '0%';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
+                                echo "<button id='roulette-number-$i' class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
-                                        <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>$prob</div>
+                                        <div class='cell-number number-cell'>$i</div>
+                                        <div class='cell-prob number-prob-cell'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -168,10 +190,10 @@ function getNumberColor($num) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
                                 $prob = $stats ? formatProb($stats['prob']) : '0%';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
+                                echo "<button id='roulette-number-$i' class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
-                                        <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>$prob</div>
+                                        <div class='cell-number number-cell'>$i</div>
+                                        <div class='cell-prob number-prob-cell'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -183,10 +205,10 @@ function getNumberColor($num) {
                                 $color = getNumberColor($i);
                                 $stats = array_values(array_filter($numberStats, fn($s) => $s['number'] == $i))[0] ?? null;
                                 $prob = $stats ? formatProb($stats['prob']) : '0%';
-                                echo "<button class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
+                                echo "<button id='roulette-number-$i' class='number-btn-cell $color' onclick='addNumber($i)' title='$i'>
                                     <div class='cell-content'>
-                                        <div class='cell-number'>$i</div>
-                                        <div class='cell-prob'>$prob</div>
+                                        <div class='cell-number number-cell'>$i</div>
+                                        <div class='cell-prob number-prob-cell'>$prob</div>
                                     </div>
                                 </button>";
                             } ?>
@@ -195,20 +217,12 @@ function getNumberColor($num) {
 
                     <!-- 2:1 выставки справа -->
                     <div class="roulette-2to1">
-                        <?php 
-                        // 2:1 Выставки для столбцов
-                        $col1Numbers = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34];
-                        $col2Numbers = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35];
-                        $col3Numbers = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
-                        
-                        // Для каждого столбца считаем среднюю вероятность (как для группы)
-                        foreach(['col1' => 12, 'col2' => 12, 'col3' => 12] as $col => $count):
-                            $baseProb = ($count / 37) * 100;
-                            $formattedProb = formatProb($baseProb);
+                        <?php foreach (['1st Column', '2nd Column', '3rd Column'] as $columnName):
+                            $columnStats = $probabilityMap[$columnName] ?? null;
                         ?>
-                        <div class="bet-btn-2to1-wrapper">
+                        <div class="bet-btn-2to1-wrapper" data-bet-name="<?php echo $columnName; ?>">
                             <button class="bet-btn-2to1">2 TO 1</button>
-                            <div class="bet-prob"><?php echo $formattedProb; ?></div>
+                            <div class="bet-prob bet-prob-column"><?php echo $columnStats ? formatProb($columnStats['prob']) : '-'; ?></div>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -233,9 +247,9 @@ function getNumberColor($num) {
                                 }
                             endforeach;
                         ?>
-                        <div class="bet-btn-dozen-wrapper">
+                        <div class="bet-btn-dozen-wrapper" data-bet-name="<?php echo $dozenKey; ?>">
                             <button class="bet-btn-dozen"><?php echo $dozenDisplay; ?></button>
-                            <div class="bet-prob"><?php echo $dozenProb ?: '-'; ?></div>
+                            <div class="bet-prob bet-prob-dozen"><?php echo $dozenProb ?: '-'; ?></div>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -266,11 +280,11 @@ function getNumberColor($num) {
                                 }
                             endforeach;
                         ?>
-                        <div class="bet-btn-bottom-wrapper">
+                        <div class="bet-btn-bottom-wrapper" data-bet-name="<?php echo $key === 'Even' ? 'Even' : ($key === 'Red' ? 'Red' : ($key === 'Black' ? 'Black' : ($key === 'Odd' ? 'Odd' : $key))); ?>">
                             <button class="bet-btn-bottom <?php echo $key === 'Red' ? 'red-field' : ($key === 'Black' ? 'black-field' : ''); ?>">
                                 <?php echo $display; ?>
                             </button>
-                            <div class="bet-prob"><?php echo $betProb ?: '-'; ?></div>
+                            <div class="bet-prob bet-prob-bottom"><?php echo $betProb ?: '-'; ?></div>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -280,20 +294,45 @@ function getNumberColor($num) {
     </div>
 
     <script>
+        async function postHistoryChange(payload) {
+            const response = await fetch('?ajax=1', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams(payload).toString()
+            });
+
+            return response.json();
+        }
+
         function addNumber(num) {
-            // Создаём скрытую форму и отправляем её
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.style.display = 'none';
-            
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'number';
-            input.value = num;
-            
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
+            return postHistoryChange({ number: num })
+                .then(updateStateFromResponse)
+                .then(() => false);
+        }
+
+        function submitNumber(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const input = form.querySelector('input[name="number"]');
+            if (!input || input.value === '') {
+                return false;
+            }
+            return postHistoryChange({ number: input.value })
+                .then(updateStateFromResponse)
+                .then(() => {
+                    input.value = '';
+                    input.focus();
+                    return false;
+                });
+        }
+
+        function clearHistory(event) {
+            if (event) event.preventDefault();
+            return postHistoryChange({ clear: 1 })
+                .then(updateStateFromResponse)
+                .then(() => false);
         }
 
         function switchView(view) {
@@ -315,6 +354,94 @@ function getNumberColor($num) {
 
             // Сохраняем выбор в localStorage
             localStorage.setItem('rouletteView', view);
+        }
+
+        function updateStateFromResponse(data) {
+            updateHistoryList(data.history || []);
+            updateNumberStats(data.numberStats || []);
+            updateProbabilitySections(data.probabilities || []);
+        }
+
+        function updateHistoryList(history) {
+            const historyList = document.getElementById('history-list');
+            if (!historyList) return;
+
+            historyList.innerHTML = history.map((value) => `<div class="history-item">${value}</div>`).join('');
+        }
+
+        function updateNumberStats(numberStats) {
+            numberStats.forEach((stat) => {
+                const row = document.querySelector(`tr[data-number="${stat.number}"]`);
+                if (!row) return;
+
+                const sigmaCell = row.querySelector('.sigma-cell');
+                const lastSeenCell = row.querySelector('.last-seen-cell');
+                const probCell = row.querySelector('.number-prob-cell');
+
+                if (sigmaCell) sigmaCell.textContent = stat.sigma;
+                if (lastSeenCell) lastSeenCell.textContent = stat.lastSeen === '&infin;' ? '∞' : stat.lastSeen;
+                if (probCell) probCell.textContent = formatProbClient(stat.prob);
+
+                const rouletteCell = document.getElementById(`roulette-number-${stat.number}`);
+                if (rouletteCell) {
+                    const probNode = rouletteCell.querySelector('.number-prob-cell');
+                    if (probNode) probNode.textContent = formatProbClient(stat.prob);
+                }
+            });
+        }
+
+        function updateProbabilitySections(probabilities) {
+            const probabilityMap = {};
+            probabilities.forEach((item) => {
+                probabilityMap[item.name] = item;
+            });
+
+            document.querySelectorAll('[data-stat-name]').forEach((row) => {
+                const name = row.getAttribute('data-stat-name');
+                const stat = probabilityMap[name];
+                if (!stat) return;
+
+                const streak = row.querySelector('.stat-streak');
+                const follow = row.querySelector('.stat-prob-next');
+                const risk = row.querySelector('.stat-prob-break');
+
+                if (streak) streak.textContent = `S:${stat.streak}`;
+                if (follow) follow.textContent = `След: ${formatProbClient(stat.prob)}`;
+                if (risk) {
+                    risk.className = `val-prob ${getRiskClass(stat.break)} stat-prob-break`;
+                    risk.textContent = `Риск: ${formatExpectationClient(stat.break)}`;
+                }
+            });
+
+            document.querySelectorAll('[data-bet-name]').forEach((wrapper) => {
+                const name = wrapper.getAttribute('data-bet-name');
+                const stat = probabilityMap[name];
+                if (!stat) return;
+
+                const probNode = wrapper.querySelector('.bet-prob');
+                if (probNode) probNode.textContent = formatProbClient(stat.prob);
+            });
+        }
+
+        function formatProbClient(num) {
+            if (num < 0.000001) return '< 0.000001%';
+            return `${Number(num).toFixed(4)}%`;
+        }
+
+        function formatExpectationClient(breakValue) {
+            if (breakValue > 99.99 && breakValue < 100) {
+                return '> 99.99%';
+            }
+            if (breakValue >= 100) {
+                return '> 99.99%';
+            }
+            return `${Number(breakValue).toFixed(2)}%`;
+        }
+
+        function getRiskClass(breakValue) {
+            if (breakValue >= 90) return 'risk-red';
+            if (breakValue >= 70) return 'risk-orange';
+            return 'risk-green';
         }
 
         // Восстанавливаем сохранённый вид при загрузке страницы
